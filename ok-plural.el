@@ -14,15 +14,29 @@
 (require 'ispell)
 (require 'plural)
 
+(defun ok-plural--ispell-valid-word-p (word)
+  "Return non-nil if WORD exists in the ispell dictionary, nil if not."
+  (let ((inhibit-message t)
+        (ispell-filter nil)
+        check)
+    (setq check
+          (condition-case nil
+              (ispell--run-on-word word)
+            ;; Handle "Ispell and its process have different character maps"
+            (error
+             (progn
+               (message "ispell error on word: %s" word)
+               nil))))
+    (if (eq check t) t nil)))
+
 (defun ok-plural-pluralize (noun)
   "Pluralize given NOUN.
 Pluralization is performed using heuristics. If spell
 checking (with `ispell') determines that the plural form doesn't
 exist, the function returns nil."
   (let* ((pluralized (plural-pluralize noun))
-         (ispell-filter nil)
-         (spell-checked (ispell--run-on-word pluralized)))
-    (if (eq spell-checked t)
+         (check (ok-plural--ispell-valid-word-p pluralized)))
+    (if (eq check t)
         pluralized)))
 
 (provide 'ok-plural)
