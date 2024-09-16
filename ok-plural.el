@@ -22,6 +22,9 @@
     (setq check
           (condition-case nil
               (ispell--run-on-word word)
+            ;; TODO: Explicitly handle each error case to avoid
+            ;; suppressing useful failures
+
             ;; Handle "Ispell and its process have different character maps"
             (error
              (progn
