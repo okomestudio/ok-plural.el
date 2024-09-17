@@ -18,18 +18,20 @@
   "Return non-nil if WORD exists in the ispell dictionary, nil if not."
   (let ((inhibit-message t)
         (ispell-filter nil)
-        check)
+        check err-msg)
     (setq check
-          (condition-case nil
+          (condition-case err
               (ispell--run-on-word word)
-            ;; TODO: Explicitly handle each error case to avoid
-            ;; suppressing useful failures
-
-            ;; Handle "Ispell and its process have different character maps"
             (error
-             (progn
-               (message "ispell error on word: %s" word)
-               nil))))
+             (setq err-msg (error-message-string err))
+             (message "Ispell error on word: %s" word)
+             (cond
+              ;; Handle "Ispell and its process have different character maps"
+              ((string-match-p (regexp-quote "have different character maps")
+                               err-msg)
+               nil)
+              ;; Pass through all the other errors
+              (t (error err-msg))))))
     (if (eq check t) t nil)))
 
 (defun ok-plural-pluralize (noun)
