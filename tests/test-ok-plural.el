@@ -9,9 +9,12 @@
 
 (describe "ok-plural"
   :var (result)
+  (before-all
+    ;; FIXME: This actually fail, but initializes ispell process
+    ;; correctly; find a proper way to initialize ispell process
+    (ispell-word))
+
   (it "returns a plural noun for a valid word"
-    ;; FIXME: This test case really fails due to "There is no Ispell
-    ;; process running!"
     (setq result (ok-plural-pluralize "apple"))
     (expect result :to-equal "apples"))
 
